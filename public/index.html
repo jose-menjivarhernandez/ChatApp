@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A2 Chat App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" type="text/css" href = "mystyles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(window).on('load', function() {
+          $('#defaultModal').modal('show');
+      });
+      
+
+  </script>
+
+  </head>
+  <body>
+
+    <div class="modal fade" id="defaultModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="defaultModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="defaultModalLabel">Welcome to the Chat App!</h5>
+          </div>
+          <div class="modal-body">
+            <h5>Please read the following instructions</h5>
+            <p>In this chat, every user must have a unique username and color. You may choose
+            to use a username and color of your choosing, or we may assign you one.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id= "assign-username-btn" data-bs-target="#defaultModal2" data-bs-toggle="modal" data-bs-dismiss="modal">Choose username</button>
+            <button type ="button"  class = "btn btn-secondary"> Assign unique username</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="defaultModal2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="defaultModalLabel2" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="defaultModalLabel2">Username and Color Choice</h5>
+          </div>
+          <div class="modal-body" id = "modal2">
+            <form class = "mb-3" id = "userForm">
+            <h5>Please choose your username and color</h5>
+            <hr>
+            <input type = "text" class="form-control mb-3" id="usernameChoice" placeholder="Your Username">
+            <input type = "color" id = "colorpicker" value = "#000000">
+            </form>
+            <div id = "allnames"></div>
+            <ul id = "userList"></ul>
+          </div> 
+          <div class="modal-footer">
+            <button type="button" id="submitBtn" class="btn btn-primary" data-bs-dismiss="modal">Choose username</button>
+            <!-- <button type ="button" class = "btn btn-secondary" data-bs-target="#defaultModal" data-bs-toggle="modal" data-bs-dismiss="modal"> Back to options</button> -->
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- <script type = "module" src="server.js"></script> -->
+    <script type = "module" src = "client.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    
+  </body>
+</html>
