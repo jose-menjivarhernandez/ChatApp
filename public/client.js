@@ -172,7 +172,7 @@ socket.on('chat message', function(messageObject) {
 function createOutsiderCard(username, usercolor, timestamp, messageContent){
 
   let htmlStub = `          <div class="card otherSenderCard my-2">
-  <div class="card-header d-flex justify-content-between p-3">
+  <div class="card-header d-flex justify-content-between p-3" >
     <p class="fw-bold mb-0" id = "senderHeader" style = "color: ${usercolor}">${username}</p>
     <p class="text-muted small mb-0"> ${timestamp}</p>
   </div>
@@ -189,7 +189,7 @@ function createOutsiderCard(username, usercolor, timestamp, messageContent){
 function createMySenderCard(username, usercolor, timestamp, messageContent){
 
   let htmlStub = `          <div class="card mySenderCard my-2">
-  <div class="card-header d-flex justify-content-between p-3">
+  <div class="card-header d-flex justify-content-between p-3" id = "cardHeader">
     <p class="fw-bold mb-0" id = "senderHeader" style = "color: ${usercolor};">${username}</p>
     <p class="text-muted small mb-0"> ${timestamp}</p>
   </div>
@@ -231,17 +231,3 @@ function userInputValidation(inputString){
   }
   return ['basicMessage', inputString]
 }
-
-// The following functions were directly sourced from Delft Stack. 
-// Link: https://www.delftstack.com/howto/javascript/rgb-to-hex-javascript/#:~:text=To%20convert%20from%20RGB%20to,the%20toString(16)%20function.
-
-function ColorToHex(color) {
-  var hexadecimal = color.toString(16);
-  return hexadecimal.length == 1 ? "0" + hexadecimal : hexadecimal;
-}
-
-function ConvertRGBtoHex(red, green, blue) {
-  return "#" + ColorToHex(red) + ColorToHex(green) + ColorToHex(blue);
-}
-
-// console.log(ConvertRGBtoHex(255, 100, 200));

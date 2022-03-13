@@ -142,8 +142,8 @@ function calculateMessageTimestamp(){
     let minutes = today.getMinutes();
     let seconds = today.getSeconds();
 
-    let minutesToUse = minutes < 10 ? ("0"+minutes):minutes;
-    let secondsToUse = seconds <10 ? ("0" + seconds):seconds;
+    let minutesToUse = minutes < 10 ? ("0" + minutes):minutes;
+    let secondsToUse = seconds < 10 ? ("0" + seconds):seconds;
 
     if(hours>12){
         hours = hours-12;

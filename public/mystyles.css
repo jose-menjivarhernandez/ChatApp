@@ -1,15 +1,18 @@
 
-.overall{
+body{
+    background-color: #eee;
     height: 100vh;
 }
 
 .flex-container{
+    height: 100vh;
     display: flex;
     flex-direction: row;
-    height:100vh;
     align-items: stretch;
     background-color: #eee;
+    position:relative;
 }
+
 
 .member-container{
     flex:20%;
@@ -23,7 +26,6 @@
 
 .formFlex{
     flex:5%;
-    flex-grow: 1;
 }
 
 .messageFlex{
@@ -35,15 +37,18 @@
 
 #senderHeader{
     overflow: auto;
+    max-width:80%;
 }
 
 .otherSenderCard{
     width: 40%;
+    max-height: fit-content;
     align-self: flex-start;
 }
 
 .mySenderCard{
     width: 40%;
+    max-height: fit-content;
     align-self: flex-end;
 }
 
@@ -57,7 +62,84 @@
 
 .membercard{
     height: 96%;
-    max-width: 305px;
+    max-width: 400px;
     width:100%;
     overflow-y: scroll;
+}
+
+@media screen and (max-width:1350px) {
+    .member-container{
+        flex:25%;
+    }
+    
+    .chat-container{
+        flex:75%;
+    }
+
+    .otherSenderCard{
+        width: 60%;
+        align-self: flex-start;
+    }
+    
+    .mySenderCard{
+        width: 60%;
+        align-self: flex-end;
+    }
+}
+
+@media screen and (max-width:992px) {
+    .member-container{
+        flex:30%;
+    }
+    
+    .chat-container{
+        flex:70%;
+    }
+
+    .membercard{
+        max-width: 350px;
+    }
+}
+
+@media screen and (max-width:768px) {
+    .flex-container{
+        flex-direction: column;
+    }
+    .membercard{
+        max-width: 100%;
+    }
+
+    .otherSenderCard{
+        width: 75%;
+    }
+    
+    .mySenderCard{
+        width: 75%;
+    }
+    .member-container{
+        flex:40%;
+        max-height: 15%;
+    }
+    
+    .chat-container{
+        flex:60%;
+        max-height: 77%;
+    }
+}
+
+@media screen and (max-width:576px) {
+    .otherSenderCard{
+        width: 60%;}
+    
+    .mySenderCard{
+        width: 60%;
+    }
+    .otherSenderCard{
+        width: 90%;
+    }
+    
+    .mySenderCard{
+        width: 90%;
+    }
+
 }
