@@ -23,12 +23,19 @@ let usernumber =0;
 io.on('connection', (socket) => {
 
     sendSocketID(socket.id);
-    console.log(socket.id)
+    console.log(usernames)
+    console.log(usercolors)
+    console.log(socketIDs)
     console.log('a user connected');
 
     // Sockett Disconnection event
     socket.on('disconnect', () => {
+        let userIndex = socketIDs.indexOf(socket.id);
+        usernames.splice(userIndex,1);
+        usercolors.splice(userIndex,1);
+        socketIDs.splice(userIndex,1);
         console.log('user disconnected');
+        io.emit('New user change', usernames);
     });
 
     // Dealing with chat messages
@@ -58,7 +65,7 @@ io.on('connection', (socket) => {
             io.to(currentSocket).emit('info validation check', returnObject);
             usernames.push(userObject[0]);
             usercolors.push(userObject[1]);
-            io.emit('New user addon', usernames);
+            io.emit('New user change', usernames);
         }
         else{
             returnObject = [userObject[0], userObject[1], false]
@@ -72,8 +79,36 @@ io.on('connection', (socket) => {
         usernames.push(randomCreations[0]);
         usercolors.push(randomCreations[1]);
         io.to(currentSocket).emit('random username response', randomCreations);
-        io.emit('New user addon', usernames);
+        io.emit('New user change', usernames);
     });
+
+    socket.on('Name change event', (changeObject) => {
+        let senderSocket = changeObject[0]
+        let potentialNewName = changeObject[1];
+        if(usernames.includes(potentialNewName)){
+            io.to(senderSocket).emit('Invalid name change', potentialNewName)
+        }
+        else{
+            let userIndex = socketIDs.indexOf(socket.id);
+            usernames.splice(userIndex,1,potentialNewName);
+            io.emit('New user change', usernames);
+            io.to(senderSocket).emit('Successful name change', potentialNewName);
+        }
+    });
+
+    socket.on('Color change event', (changeObject)=>{
+        let senderSocket = changeObject[0]
+        let potentialNewColor = changeObject[1];
+        if(usercolors.includes(potentialNewColor)){
+            io.to(senderSocket).emit('Invalid color change', potentialNewColor);
+        }
+        else{
+            let userIndex = socketIDs.indexOf(socket.id);
+            usercolors.splice(userIndex,1,potentialNewColor);
+            io.to(senderSocket).emit('Successful color change', potentialNewColor);
+        }
+    });
+
 })
 
 server.listen(3001, () => {

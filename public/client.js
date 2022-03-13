@@ -22,20 +22,50 @@ let usercolor;
 
 form.addEventListener('submit', function(e) {
   e.preventDefault();
-  if (input.value) {
-    let inputObject = [username, usercolor, input.value, socketId]
-    socket.emit('chat message', inputObject);
+  let userInput = input.value;
+  let userChangeObject;
+  if (userInput) {
+    let validationObject = userInputValidation(userInput);
+
+    if(validationObject[0] == 'nameChange'){
+      userChangeObject = [socketId, validationObject[1]];
+      socket.emit('Name change event', (userChangeObject));
+    }
+    else if (validationObject[0] == 'colorChange'){
+      userChangeObject = [socketId, validationObject[1]]
+      socket.emit('Color change event', userChangeObject);
+    }
+    else if (validationObject[0] == 'basicMessage') {
+      let inputObject = [username, usercolor, input.value, socketId]
+      socket.emit('chat message', inputObject);
+    }
     input.value = '';
   }
 });
 
-socket.on("Socket sending" ,(id) =>{
+socket.on('Invalid name change', (potentialName) =>{
+  alert('The username ' + potentialName + " is already being used. You cannot change your name to that");
+});
+
+socket.on('Invalid color change', (potentialColor) =>{
+  alert('The username ' + potentialColor + " is already being used. You cannot change your name to that");
+});
+
+socket.on('Successful color change', (newColor)=>{
+  usercolor = newColor;
+})
+
+socket.on('Successful name change', (newName)=>{
+  username = newName;
+})
+
+
+socket.on("Socket sending",(id) =>{
   console.log(id)
   socketId = id;
 })
 
 //User Modal Implementation
-
 submitBtn.addEventListener('click', () => {
     let userArr = [userForm.elements[0].value, userForm.elements[1].value, socketId];
     socket.emit('send username&color', userArr)
@@ -60,14 +90,16 @@ socket.on('info validation check', (userObject)=>{
   }
 })
 
-socket.on('New user addon', (usernames)=> {
+socket.on('New user change', (usernames)=> {
   membersGroup.innerHTML = '';
+  let htmlMembersString;
   for(let i = 0; i< usernames.length;i++){
-    let htmlMembersString = `<li class="list-group-item">${usernames[i]}</li>`
+    htmlMembersString = `<li class="list-group-item" style = "overflow: auto;">${usernames[i]}</li>`
     membersGroup.insertAdjacentHTML('beforeend', htmlMembersString);
   }
-
 });
+
+
 
 assignButton.addEventListener('click', () =>{
     socket.emit('get users info')
@@ -141,7 +173,7 @@ function createOutsiderCard(username, usercolor, timestamp, messageContent){
 
   let htmlStub = `          <div class="card otherSenderCard my-2">
   <div class="card-header d-flex justify-content-between p-3">
-    <p class="fw-bold mb-0" style = "color: ${usercolor}">${username}</p>
+    <p class="fw-bold mb-0" id = "senderHeader" style = "color: ${usercolor}">${username}</p>
     <p class="text-muted small mb-0"> ${timestamp}</p>
   </div>
   <div class="card-body">
@@ -158,7 +190,7 @@ function createMySenderCard(username, usercolor, timestamp, messageContent){
 
   let htmlStub = `          <div class="card mySenderCard my-2">
   <div class="card-header d-flex justify-content-between p-3">
-    <p class="fw-bold mb-0" style = "color: ${usercolor};">${username}</p>
+    <p class="fw-bold mb-0" id = "senderHeader" style = "color: ${usercolor};">${username}</p>
     <p class="text-muted small mb-0"> ${timestamp}</p>
   </div>
   <div class="card-body">
@@ -170,3 +202,46 @@ function createMySenderCard(username, usercolor, timestamp, messageContent){
 `
   return htmlStub;
 }
+
+function userInputValidation(inputString){
+
+  let nameChange = inputString.substring(0,7);
+  let colorChange = inputString.substring(0,13);
+
+  // I assume that color input is of hexadecimal form
+
+  let trimmedString = inputString.trim(); 
+  let lastChar = trimmedString.charAt(trimmedString.length-1);
+
+  if(lastChar == '>'){
+    if(nameChange == '/nick <'){
+      let newName = trimmedString.substring(7,trimmedString.length-1)
+      return ['nameChange', newName];
+    }
+    else if(colorChange =='/nickcolor <#'){
+      let colorString = trimmedString.substring(13,trimmedString.length-1);
+      if(/^[a-fA-F0-9]{1,6}$/.test(colorString)){
+        return ['colorChange', '#' +colorString]
+      }
+      else{
+        alert(`The color ${colorString} is not of the appropriate format. Try again. To change colort, type /nickcolor <#hexColor>. Remember that the hex Color code is comprised of a string of length 1 to 6 with characters only being letters from A-F and numbers from 0-9` )
+        return ['wrongColorFormat',""]
+      }
+    }
+  }
+  return ['basicMessage', inputString]
+}
+
+// The following functions were directly sourced from Delft Stack. 
+// Link: https://www.delftstack.com/howto/javascript/rgb-to-hex-javascript/#:~:text=To%20convert%20from%20RGB%20to,the%20toString(16)%20function.
+
+function ColorToHex(color) {
+  var hexadecimal = color.toString(16);
+  return hexadecimal.length == 1 ? "0" + hexadecimal : hexadecimal;
+}
+
+function ConvertRGBtoHex(red, green, blue) {
+  return "#" + ColorToHex(red) + ColorToHex(green) + ColorToHex(blue);
+}
+
+// console.log(ConvertRGBtoHex(255, 100, 200));
