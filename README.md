@@ -12,6 +12,11 @@ To enable the folder, navigateto the main folder and run the command:
 ``` npm install```
 
 This will download all the necessary dependencies onto your main directory in a node_modules folder.
+After all installations are done, type: 
+
+```node index.js``` 
+
+in your terminal, and type localhost:3001 in your browser (except internet explorer, as does not support bootstrap)
 
 ## Navigation
 
