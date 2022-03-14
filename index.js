@@ -5,6 +5,10 @@ const server = http.createServer(app);
 const {Server} = require("socket.io")
 const io = new Server(server)
 
+/**
+ * Code necessary such that the client knows whether to get the htl file
+ * as well as for the pap to beware that it must use code in the public fodler.
+ */
 
 app.use(express.static(__dirname + '/public'));
 
@@ -12,22 +16,30 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+/**
+ * Data structures to hold all messages,usernames, user colors, and user socket IDs
+ */
 
 let messageHistory = []
 let usernames = [];
 let usercolors = [];
 let socketIDs =[];
 
+// Number that will allow to have unique usernames when randomly assigned ("user+usernumber")
 let usernumber =0;
 
+/**
+ * All event handlers for when there is a connection to server
+ */
 io.on('connection', (socket) => {
 
-    sendSocketID(socket.id);
-    console.log(usernames)
-    console.log(usercolors)
-    console.log(socketIDs)
+    // we call the sendSocketID function to send the joiner their socker ID as well as the entire chat history
+    socketInitialization(socket.id);
 
-    // Sockett Disconnection event
+    /**
+     * Socket disconnection event handler. Essentially, this just finds the leaving user's username to remove it
+     * from the list and and then sends the apporpriate events to all the clients to adapt their screens
+     */
     socket.on('disconnect', () => {
         let userIndex = socketIDs.indexOf(socket.id);
         let leavinguser = usernames[userIndex];
@@ -35,15 +47,16 @@ io.on('connection', (socket) => {
         usercolors.splice(userIndex,1);
         socketIDs.splice(userIndex,1);
         io.emit('New user change', usernames);
-        io.emit('User leaving event', leavinguser);
+        if(leavinguser != null){
+            io.emit('User leaving event', leavinguser);
+        }
     });
 
-    // Dealing with chat messages
-    socket.on('chat message', (messageObject)=>{
-        let msg = messageObject[0];
-        console.log('message: ' + msg)
-    })
-
+    /**
+     * Chat message event handler that essentially just adds a message to the message history object. This
+     * handler ensures that the message history is at most 200 events only. 
+     * This then emits the chat message to all clients to adapt their screen
+     */
     socket.on('chat message',(messageObject)=>{
         let msgTime = calculateMessageTimestamp();
         let returnObject = [messageObject[0], messageObject[1], msgTime, messageObject[2], messageObject[3]]
@@ -54,12 +67,19 @@ io.on('connection', (socket) => {
         io.emit('chat message', returnObject);
     });
 
-    //Fetching users' information to assign usernames and such
-    socket.on('get users info', ()=>{
+    /**
+     * Event handler that sends all usernames and users to the asking client. Identified by socket id
+     */
+    socket.on('get users info', (thisSocketID)=>{
         let userInfo = [usernames, usercolors];
-        io.emit('sent users info', userInfo);
+        io.to(thisSocketID).emit('sent users info', userInfo);
     });
 
+    /**
+     * Event handler that handles when the user wants to set their color and username in the initial modal.
+     * This essentially checks whether the desired uusername and color are available, and emits the appropriate events in that case 
+     * they are and even when they are not
+     */
     socket.on('send username&color' ,(userObject) =>{
         currentSocket = userObject[2];
         let returnObject = []
@@ -77,7 +97,8 @@ io.on('connection', (socket) => {
         }
     });
 
-    //Event to send back a random username to a user, 
+    //Event hander to send back a random username to a user when it was requested in the "login"-like modals.
+    //Uses a helper function described blow
     socket.on('random username request', (currentSocket)=>{
         randomCreations = generateRandomUsernameAndColor();
         usernames.push(randomCreations[0]);
@@ -87,6 +108,11 @@ io.on('connection', (socket) => {
         io.emit('User entrance event', randomCreations[0]);
     });
 
+    /**
+     * Event handler to check whether a name change event is valid. If its not, the error
+     * is emmitted only to the changing client. If successful, is broadcasted to all users such that
+     * they add it to their member lists and notify their message screens
+     */
     socket.on('Name change event', (changeObject) => {
         let senderSocket = changeObject[0]
         let potentialNewName = changeObject[1];
@@ -103,6 +129,11 @@ io.on('connection', (socket) => {
         }
     });
 
+    /**
+     * Event handler for when a user wants to change colors. If successful, invalid error event sent only
+     * to changing client. If successful, success event sent to client to update their own colors. 
+     */
+
     socket.on('Color change event', (changeObject)=>{
         let senderSocket = changeObject[0]
         let potentialNewColor = changeObject[1];
@@ -118,16 +149,28 @@ io.on('connection', (socket) => {
 
 })
 
+/**
+ * Server listening at port 3001
+ */
 server.listen(3001, () => {
     console.log("Listening at port 3001");
 });
 
-function sendSocketID(socketID){
+/**
+ * Function to initialize a socket, such that a socket has its own ID, and has the chat history in its screen
+ * @param {string} socketID current socket ID to send to client so cient can store it and use it to identify itself
+ */
+
+function socketInitialization(socketID){
     io.to(socketID).emit("Socket sending", socketID);
     io.to(socketID).emit("Chat History", messageHistory);
     socketIDs.push(socketID);
 }
 
+/**
+ * Function used to generate a random username and color
+ * @returns an object comprised of the generated random username and color
+ */
 function generateRandomUsernameAndColor(){
     //source: https://css-tricks.com/snippets/javascript/random-hex-color/
     var randomUser = "user"+usernumber;
@@ -142,6 +185,11 @@ function generateRandomUsernameAndColor(){
     return [randomUser, randomColor];
 }
 
+/**
+ * Utility function to calculation current timestamp
+ * @returns current timestamp calculation down to seconds 
+ * Adding the 0s if seconds and minutes under 10 and also and AM PM where necessary
+ */
 function calculateMessageTimestamp(){
     var today = new Date();
     let timeOfDay = "AM";
