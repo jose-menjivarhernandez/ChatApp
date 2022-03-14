@@ -15,6 +15,7 @@ var validationMessage = document.getElementById('validationMessage');
 var validationButton = document.getElementById('validationBtn');
 var messagesContainer = document.getElementById('messagesContainer');
 var membersGroup = document.getElementById('membersGroup');
+var revertingDiv = document.getElementById('reversingDiv');
 
 let socketId;
 let username; 
@@ -28,7 +29,7 @@ form.addEventListener('submit', function(e) {
     let validationObject = userInputValidation(userInput);
 
     if(validationObject[0] == 'nameChange'){
-      userChangeObject = [socketId, validationObject[1]];
+      userChangeObject = [socketId, validationObject[1], username];
       socket.emit('Name change event', (userChangeObject));
     }
     else if (validationObject[0] == 'colorChange'){
@@ -99,7 +100,22 @@ socket.on('New user change', (usernames)=> {
   }
 });
 
+socket.on('User entrance event', (aUsername) => {
+  let htmlToAdd =`<p class = "text-muted" style = "align-self: center;">${aUsername} has entered the chat</p>`
+  messagesContainer.insertAdjacentHTML('beforeend', htmlToAdd);
+})
 
+socket.on('User leaving event', (aUsername) => {
+  let htmlToAdd =`<p class = "text-muted" style = "align-self: center;">${aUsername} has left the chat</p>`
+  messagesContainer.insertAdjacentHTML('beforeend', htmlToAdd);
+})
+
+socket.on('User changing name event', (eventObject) => {
+  let oldUsername = eventObject[0];
+  let newUsername = eventObject[1];
+  let htmlToAdd =`<p class = "text-muted" style = "align-self: center;">${oldUsername} has changed their name to ${newUsername}</p>`
+  messagesContainer.insertAdjacentHTML('beforeend', htmlToAdd);
+})
 
 assignButton.addEventListener('click', () =>{
     socket.emit('get users info')
@@ -164,8 +180,9 @@ socket.on('chat message', function(messageObject) {
     let htmlToAdd = createOutsiderCard(username, usercolor,timestamp,content);
     messagesContainer.insertAdjacentHTML("beforeend", htmlToAdd);
   }
-  window.scrollTo(0, document.body.scrollHeight);
+  // revertingDiv.scrollTo(0, revertingDiv.body.scrollHeight);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  revertingDiv.scrollTop = revertingDiv.scrollHeight;
 });
 
 

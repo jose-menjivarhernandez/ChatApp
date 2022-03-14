@@ -28,11 +28,16 @@ body{
     flex:5%;
 }
 
-.messageFlex{
+#reversingDiv{
     flex: 95%;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     overflow-y: scroll;
+}
+
+.messageFlex{
+    display: flex;
+    flex-direction: column;
 }
 
 #senderHeader{
@@ -50,7 +55,7 @@ body{
     width: 40%;
     max-height: fit-content;
     align-self: flex-end;
-}
+ }
 
 #input{
     width: 100%;

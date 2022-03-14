@@ -26,16 +26,16 @@ io.on('connection', (socket) => {
     console.log(usernames)
     console.log(usercolors)
     console.log(socketIDs)
-    console.log('a user connected');
 
     // Sockett Disconnection event
     socket.on('disconnect', () => {
         let userIndex = socketIDs.indexOf(socket.id);
+        let leavinguser = usernames[userIndex];
         usernames.splice(userIndex,1);
         usercolors.splice(userIndex,1);
         socketIDs.splice(userIndex,1);
-        console.log('user disconnected');
         io.emit('New user change', usernames);
+        io.emit('User leaving event', leavinguser);
     });
 
     // Dealing with chat messages
@@ -45,8 +45,11 @@ io.on('connection', (socket) => {
     })
 
     socket.on('chat message',(messageObject)=>{
-        let msgTime = calculateMessageTimestamp()
+        let msgTime = calculateMessageTimestamp();
         let returnObject = [messageObject[0], messageObject[1], msgTime, messageObject[2], messageObject[3]]
+        if(messageHistory.length >250){
+            messageHistory.pop();
+        }
         messageHistory.push(returnObject);
         io.emit('chat message', returnObject);
     });
@@ -66,6 +69,7 @@ io.on('connection', (socket) => {
             usernames.push(userObject[0]);
             usercolors.push(userObject[1]);
             io.emit('New user change', usernames);
+            io.emit('User entrance event', userObject[0]);
         }
         else{
             returnObject = [userObject[0], userObject[1], false]
@@ -80,6 +84,7 @@ io.on('connection', (socket) => {
         usercolors.push(randomCreations[1]);
         io.to(currentSocket).emit('random username response', randomCreations);
         io.emit('New user change', usernames);
+        io.emit('User entrance event', randomCreations[0]);
     });
 
     socket.on('Name change event', (changeObject) => {
@@ -93,6 +98,8 @@ io.on('connection', (socket) => {
             usernames.splice(userIndex,1,potentialNewName);
             io.emit('New user change', usernames);
             io.to(senderSocket).emit('Successful name change', potentialNewName);
+            let object2 = [changeObject[2], potentialNewName];
+            io.emit('User changing name event', object2);
         }
     });
 
